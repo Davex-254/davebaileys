@@ -1,10 +1,10 @@
 <div align="center">
-  <h1>Gifted-Baileys</h1>
+  <h1>Davex-Baileys</h1>
   <p>A WebSocket-based JavaScript library for interacting with the WhatsApp Web API</p>
   
-  [![npm version](https://img.shields.io/npm/v/gifted-baileys.svg)](https://www.npmjs.com/package/gifted-baileys)
-  [![npm downloads](https://img.shields.io/npm/dm/gifted-baileys.svg)](https://www.npmjs.com/package/gifted-baileys)
-  [![License](https://img.shields.io/npm/l/gifted-baileys.svg)](https://github.com/mauricegift/gifted-baileys/blob/main/LICENSE)
+  [![npm version](https://img.shields.io/npm/v/davex-baileys.svg)](https://www.npmjs.com/package/davex-baileys)
+  [![npm downloads](https://img.shields.io/npm/dm/davex-baileys.svg)](https://www.npmjs.com/package/davex-baileys)
+  [![License](https://img.shields.io/npm/l/davex-baileys.svg)](https://github.com/davex-baileys/davex-baileys/blob/main/LICENSE)
 </div>
 
 ## Disclaimer
@@ -14,24 +14,24 @@ This project is not affiliated, associated, authorized, endorsed by, or in any w
 ## Installation
 
 ```bash
-npm install gifted-baileys
+npm install davex-baileys
 ```
 
 Or using yarn:
 ```bash
-yarn add gifted-baileys
+yarn add davex-baileys
 ```
 
 ## Quick Start
 
 ### CommonJS (Recommended)
 ```javascript
-const { default: makeWASocket, useMultiFileAuthState, Browsers } = require('gifted-baileys')
+const { default: makeWASocket, useMultiFileAuthState, Browsers } = require('davex-baileys')
 ```
 
 ### ES Modules / TypeScript
 ```javascript
-import pkg from 'gifted-baileys'
+import pkg from 'davex-baileys'
 const { default: makeWASocket, useMultiFileAuthState, Browsers } = pkg
 ```
 
@@ -48,9 +48,6 @@ const { default: makeWASocket, useMultiFileAuthState, Browsers } = pkg
 - Profile management
 - And much more!
 
-> **Note:** For sending buttons, please use the [gifted-btns](https://npmjs.com/package/gifted-btns) package.
-
 ## Documentation
 
-Full documentation is available at [baileys.giftedtech.co.ke](https://baileys.giftedtech.co.ke)
-
+Full documentation is available at [github.com/davex-baileys](https://github.com/davex-baileys)
