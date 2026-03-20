@@ -1,10 +1,10 @@
 <div align="center">
-  <h1>Davebaileys</h1>
+  <h1>davexbaileys</h1>
   <p>A WebSocket-based JavaScript library for interacting with the WhatsApp Web API</p>
-  
-  [![npm version](https://img.shields.io/npm/v/davebaileys.svg)](https://www.npmjs.com/package/davebaileys)
-  [![npm downloads](https://img.shields.io/npm/dm/davebaileys.svg)](https://www.npmjs.com/package/davebaileys)
-  [![License](https://img.shields.io/npm/l/davebaileys.svg)](https://github.com/Davex-254/davebaileys/blob/main/LICENSE)
+
+  [![npm version](https://img.shields.io/npm/v/davexbaileys.svg)](https://www.npmjs.com/package/davexbaileys)
+  [![npm downloads](https://img.shields.io/npm/dm/davexbaileys.svg)](https://www.npmjs.com/package/davexbaileys)
+  [![License](https://img.shields.io/npm/l/davexbaileys.svg)](https://github.com/Davex-254/davebaileys/blob/main/LICENSE)
 </div>
 
 ## Disclaimer
@@ -14,36 +14,59 @@ This project is not affiliated, associated, authorized, endorsed by, or in any w
 ## Installation
 
 ```bash
-npm install davebaileys
+npm install davexbaileys
 ```
 
 Or using yarn:
 ```bash
-yarn add davebaileys
+yarn add davexbaileys
 ```
 
 ## Quick Start
 
-### CommonJS (Recommended)
+This package is pure ESM. Use `import` syntax:
+
 ```javascript
-const { default: makeWASocket, useMultiFileAuthState, Browsers } = require('davebaileys')
+import makeWASocket, { useMultiFileAuthState, Browsers } from 'davexbaileys'
 ```
 
-### ES Modules / TypeScript
+### Basic Connection Example
+
 ```javascript
-import pkg from 'davebaileys'
-const { default: makeWASocket, useMultiFileAuthState, Browsers } = pkg
+import makeWASocket, { useMultiFileAuthState, DisconnectReason } from 'davexbaileys'
+import { Boom } from '@hapi/boom'
+
+const { state, saveCreds } = await useMultiFileAuthState('auth_info')
+
+const sock = makeWASocket({
+    auth: state,
+    printQRInTerminal: false
+})
+
+sock.ev.on('creds.update', saveCreds)
+
+sock.ev.on('connection.update', ({ connection, lastDisconnect, qr }) => {
+    if (qr) console.log('Scan QR:', qr)
+
+    if (connection === 'close') {
+        const shouldReconnect = (lastDisconnect?.error instanceof Boom)
+            && lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut
+        if (shouldReconnect) connectToWA()
+    } else if (connection === 'open') {
+        console.log('Connected!')
+    }
+})
 ```
 
 ## Features
 
-- Full WhatsApp Web API support
+- Full WhatsApp Web API support — based on official [@WhiskeySockets/Baileys](https://github.com/WhiskeySockets/Baileys) v7.0.0-rc.9
 - Multi-device support with QR code and pairing code authentication
-- LID (Link ID) addressing support for both personal chats and groups
-- Group status/story sending functionality
-- Session management and restoration
+- LID (Link ID) addressing support for personal chats and groups
+- Session stability fix for deployed servers (no more 428 reconnection loops)
 - Message sending, receiving, and manipulation
 - Group management
+- Newsletter / channel support
 - Privacy settings
 - Profile management
 - And much more!
