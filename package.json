@@ -1,18 +1,17 @@
 {
-    "name": "davebaileys",
-    "version": "1.0.1",
+    "name": "gifted-baileys",
+    "version": "2.5.8",
     "description": "A lightweight, full-featured WhatsApp Web API library for Node.js",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
-    "homepage": "https://github.com/davebaileys",
-    "author": "Dave",
+    "homepage": "https://baileys.giftedtech.co.ke",
+    "author": "Gifted Tech",
     "license": "MIT",
     "keywords": [
         "whatsapp",
         "whatsapp-api",
         "whatsapp-web",
         "baileys",
-        "davebaileys",
         "whatsapp-bot",
         "messaging",
         "chat"
