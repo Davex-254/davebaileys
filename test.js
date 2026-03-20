@@ -1,4 +1,4 @@
-const baileys = require('./lib/index.js');
+import * as baileys from './lib/index.js';
 
 console.log('=== davebaileys Library Test ===\n');
 console.log('Library loaded successfully!');
