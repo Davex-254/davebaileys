@@ -1,4 +1,4 @@
-# Davex-Baileys
+# Davebaileys
 
 A lightweight, full-featured WhatsApp Web API library for Node.js.
 
@@ -31,7 +31,7 @@ This is a Node.js library (not a web app) that provides a programmatic interface
 ## Usage
 
 ```javascript
-const { default: makeWASocket, useMultiFileAuthState, Browsers } = require('davex-baileys')
+const { default: makeWASocket, useMultiFileAuthState, Browsers } = require('davebaileys')
 ```
 
 ## Workflow

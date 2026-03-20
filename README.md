@@ -1,10 +1,10 @@
 <div align="center">
-  <h1>Davex-Baileys</h1>
+  <h1>Davebaileys</h1>
   <p>A WebSocket-based JavaScript library for interacting with the WhatsApp Web API</p>
   
-  [![npm version](https://img.shields.io/npm/v/davex-baileys.svg)](https://www.npmjs.com/package/davex-baileys)
-  [![npm downloads](https://img.shields.io/npm/dm/davex-baileys.svg)](https://www.npmjs.com/package/davex-baileys)
-  [![License](https://img.shields.io/npm/l/davex-baileys.svg)](https://github.com/davex-baileys/davex-baileys/blob/main/LICENSE)
+  [![npm version](https://img.shields.io/npm/v/davebaileys.svg)](https://www.npmjs.com/package/davebaileys)
+  [![npm downloads](https://img.shields.io/npm/dm/davebaileys.svg)](https://www.npmjs.com/package/davebaileys)
+  [![License](https://img.shields.io/npm/l/davebaileys.svg)](https://github.com/Davex-254/davebaileys/blob/main/LICENSE)
 </div>
 
 ## Disclaimer
@@ -14,24 +14,24 @@ This project is not affiliated, associated, authorized, endorsed by, or in any w
 ## Installation
 
 ```bash
-npm install davex-baileys
+npm install davebaileys
 ```
 
 Or using yarn:
 ```bash
-yarn add davex-baileys
+yarn add davebaileys
 ```
 
 ## Quick Start
 
 ### CommonJS (Recommended)
 ```javascript
-const { default: makeWASocket, useMultiFileAuthState, Browsers } = require('davex-baileys')
+const { default: makeWASocket, useMultiFileAuthState, Browsers } = require('davebaileys')
 ```
 
 ### ES Modules / TypeScript
 ```javascript
-import pkg from 'davex-baileys'
+import pkg from 'davebaileys'
 const { default: makeWASocket, useMultiFileAuthState, Browsers } = pkg
 ```
 
@@ -50,4 +50,4 @@ const { default: makeWASocket, useMultiFileAuthState, Browsers } = pkg
 
 ## Documentation
 
-Full documentation is available at [github.com/davex-baileys](https://github.com/davex-baileys)
+Full documentation is available at [github.com/Davex-254/davebaileys](https://github.com/Davex-254/davebaileys)
