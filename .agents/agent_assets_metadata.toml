@@ -6,3 +6,9 @@ id = "6y89I7row7lR7XUHHuq3B"
 uri = "file://attached_assets/DAVE-X_FIXED.zip"
 type = "unspecified"
 title = "DAVE-X Bot — All Bugs Fixed"
+
+[[outputs]]
+id = "d2emFqjbTXxOO6pzZeBja"
+uri = "file://attached_assets/DAVE-X_v2.zip"
+type = "unspecified"
+title = "DAVE-X v2 — Time Commands + All Fixes"
