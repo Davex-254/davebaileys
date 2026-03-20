@@ -12,3 +12,9 @@ id = "d2emFqjbTXxOO6pzZeBja"
 uri = "file://attached_assets/DAVE-X_v2.zip"
 type = "unspecified"
 title = "DAVE-X v2 — Time Commands + All Fixes"
+
+[[outputs]]
+id = "hL2ROSJNfZ1TUHPbrmxX2"
+uri = "file://attached_assets/DAVE-X_v3.zip"
+type = "unspecified"
+title = "DAVE-X v3 — Time Integrated Everywhere"
