@@ -1,11 +1,11 @@
 <div align="center">
-  <h1>davebaileys</h1>
+  <h1>davexbaileys</h1>
   <p>A full-featured WhatsApp Web API library for Node.js — built for bots, automation, and real integrations.</p>
 
-  [![npm version](https://img.shields.io/npm/v/davebaileys.svg)](https://www.npmjs.com/package/davebaileys)
-  [![npm downloads](https://img.shields.io/npm/dm/davebaileys.svg)](https://www.npmjs.com/package/davebaileys)
-  [![License](https://img.shields.io/npm/l/davebaileys.svg)](https://github.com/Davex-254/davebaileys/blob/main/LICENSE)
-  [![Node](https://img.shields.io/node/v/davebaileys.svg)](https://www.npmjs.com/package/davebaileys)
+  [![npm version](https://img.shields.io/npm/v/davexbaileys.svg)](https://www.npmjs.com/package/davexbaileys)
+  [![npm downloads](https://img.shields.io/npm/dm/davexbaileys.svg)](https://www.npmjs.com/package/davexbaileys)
+  [![License](https://img.shields.io/npm/l/davexbaileys.svg)](https://github.com/Davex-254/davexbaileys/blob/main/LICENSE)
+  [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
 </div>
 
 ---
@@ -17,11 +17,11 @@
 ## Installation
 
 ```bash
-npm install davebaileys
+npm install davexbaileys
 ```
 
 ```bash
-yarn add davebaileys
+yarn add davexbaileys
 ```
 
 ---
@@ -31,7 +31,7 @@ yarn add davebaileys
 ### QR Code Login
 
 ```javascript
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, Browsers } = require('davebaileys')
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, Browsers } = require('davexbaileys')
 const { Boom } = require('@hapi/boom')
 
 async function startBot() {
@@ -421,7 +421,7 @@ sock.ev.on('messages.upsert', async ({ messages, type }) => {
 ## Download Media
 
 ```javascript
-const { downloadMediaMessage } = require('davebaileys')
+const { downloadMediaMessage } = require('davexbaileys')
 
 const buffer = await downloadMediaMessage(msg, 'buffer', {})
 // buffer is a Buffer you can save to disk or process
@@ -466,9 +466,9 @@ const sock = makeWASocket({
 
 ## Links
 
-- **npm:** https://www.npmjs.com/package/davebaileys
-- **GitHub:** https://github.com/Davex-254/davebaileys
-- **Issues:** https://github.com/Davex-254/davebaileys/issues
+- **npm:** https://www.npmjs.com/package/davexbaileys
+- **GitHub:** https://github.com/Davex-254/davexbaileys
+- **Issues:** https://github.com/Davex-254/davexbaileys/issues
 
 ---
 
