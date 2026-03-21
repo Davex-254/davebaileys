@@ -5,7 +5,7 @@
   [![npm version](https://img.shields.io/npm/v/davexbaileys.svg)](https://www.npmjs.com/package/davexbaileys)
   [![npm downloads](https://img.shields.io/npm/dm/davexbaileys.svg)](https://www.npmjs.com/package/davexbaileys)
   [![License](https://img.shields.io/npm/l/davexbaileys.svg)](https://github.com/Davex-254/davexbaileys/blob/main/LICENSE)
-  [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
+  [![Node](https://img.shields.io/node/v/davexbaileys.svg)](https://www.npmjs.com/package/davexbaileys)
 </div>
 
 ---
