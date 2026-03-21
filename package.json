@@ -1,6 +1,6 @@
 {
     "name": "davexbaileys",
-    "version": "1.4.1",
+    "version": "1.4.2",
     "description": "A lightweight, full-featured WhatsApp Web API library for Node.js",
     "main": "lib/index.js",
     "homepage": "https://github.com/Davex-254/davebaileys",
