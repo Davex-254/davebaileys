@@ -3,10 +3,19 @@
     "version": "2.5.8",
     "description": "A lightweight, full-featured WhatsApp Web API library for Node.js",
     "main": "lib/index.js",
-    "types": "lib/index.d.ts",
     "homepage": "https://github.com/Davex-254/davebaileys",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Davex-254/davebaileys.git"
+    },
     "author": "Davex-254",
     "license": "MIT",
+    "files": [
+        "lib/",
+        "WAProto/",
+        "README.md",
+        "LICENSE"
+    ],
     "keywords": [
         "whatsapp",
         "whatsapp-api",
@@ -28,5 +37,8 @@
         "pino": "^9.6",
         "protobufjs": "^7.2.4",
         "ws": "^8.13.0"
+    },
+    "engines": {
+        "node": ">=18.0.0"
     }
 }
