@@ -1,242 +1,464 @@
 <div align="center">
+  <h1>davebaileys</h1>
+  <p>A full-featured WhatsApp Web API library for Node.js — built for bots, automation, and real integrations.</p>
 
-# davexbaileys
-
-**A fast, lightweight WhatsApp Web API library for Node.js**
-
-[![npm](https://img.shields.io/npm/v/davexbaileys?color=crimson)](https://www.npmjs.com/package/davexbaileys)
-[![npm downloads](https://img.shields.io/npm/dm/davexbaileys)](https://www.npmjs.com/package/davexbaileys)
-[![license](https://img.shields.io/npm/l/davexbaileys)](https://github.com/Davex-254/davebaileys/blob/main/LICENSE)
-
+  [![npm version](https://img.shields.io/npm/v/davebaileys.svg)](https://www.npmjs.com/package/davebaileys)
+  [![npm downloads](https://img.shields.io/npm/dm/davebaileys.svg)](https://www.npmjs.com/package/davebaileys)
+  [![License](https://img.shields.io/npm/l/davebaileys.svg)](https://github.com/Davex-254/davebaileys/blob/main/LICENSE)
+  [![Node](https://img.shields.io/node/v/davebaileys.svg)](https://www.npmjs.com/package/davebaileys)
 </div>
 
 ---
 
-> **Disclaimer:** This project is not affiliated with or endorsed by WhatsApp. Use responsibly. Do not use for spam, bulk messaging, or stalkerware.
-
----
-
-## Why davexbaileys?
-
-- No browser, no Selenium — connects directly via **WebSocket**
-- Based on the latest official WhatsApp multi-device protocol
-- Built-in fix for the **428 reconnection loop** that kills deployed bots
-- Pure ESM — works cleanly with modern Node.js (v20+)
+> **Disclaimer:** This project is not affiliated with, endorsed by, or connected to WhatsApp or Meta in any way. Use responsibly. Do not use for spamming, bulk messaging, or stalkerware.
 
 ---
 
 ## Installation
 
 ```bash
-npm install davexbaileys
+npm install davebaileys
+```
+
+```bash
+yarn add davebaileys
 ```
 
 ---
 
-## Requirements
+## Quick Start
 
-- **Node.js v20 or higher**
-- This package is **ESM only** — use `import`, not `require`
+### QR Code Login
 
----
+```javascript
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, Browsers } = require('davebaileys')
+const { Boom } = require('@hapi/boom')
 
-## Getting Started
+async function startBot() {
+    const { state, saveCreds } = await useMultiFileAuthState('./auth_info')
 
-### Save & Restore Session
-
-```js
-import makeWASocket, { useMultiFileAuthState, DisconnectReason } from 'davexbaileys'
-import { Boom } from '@hapi/boom'
-
-async function start() {
-    const { state, saveCreds } = await useMultiFileAuthState('session')
-
-    const sock = makeWASocket({ auth: state })
+    const sock = makeWASocket({
+        auth: state,
+        browser: Browsers.ubuntu('MyBot'),
+        printQRInTerminal: true
+    })
 
     sock.ev.on('creds.update', saveCreds)
 
     sock.ev.on('connection.update', ({ connection, lastDisconnect, qr }) => {
-        if (qr) console.log('QR code:', qr)
-
         if (connection === 'close') {
-            const code = lastDisconnect?.error?.output?.statusCode
-            if (code !== DisconnectReason.loggedOut) start()
+            const shouldReconnect = new Boom(lastDisconnect?.error)?.output?.statusCode !== DisconnectReason.loggedOut
+            if (shouldReconnect) startBot()
         } else if (connection === 'open') {
             console.log('Connected!')
         }
     })
 
-    sock.ev.on('messages.upsert', async ({ messages }) => {
-        for (const msg of messages) {
-            console.log(msg)
+    sock.ev.on('messages.upsert', async ({ messages, type }) => {
+        if (type !== 'notify') return
+        const msg = messages[0]
+        if (!msg.message || msg.key.fromMe) return
+
+        const text = msg.message.conversation || msg.message.extendedTextMessage?.text || ''
+        if (text === 'ping') {
+            await sock.sendMessage(msg.key.remoteJid, { text: 'pong 🏓' }, { quoted: msg })
         }
     })
 }
 
-start()
+startBot()
 ```
 
-### Connect with Pairing Code (no QR)
+### Pairing Code Login (No QR)
 
-```js
-const sock = makeWASocket({ auth: state })
-
-if (!sock.authState.creds.registered) {
-    const code = await sock.requestPairingCode('2547XXXXXXXX') // full number, no +
-    console.log('Pairing code:', code)
-}
-```
-
----
-
-## Sending Messages
-
-```js
-// Text
-await sock.sendMessage(jid, { text: 'Hello!' })
-
-// Reply / quote
-await sock.sendMessage(jid, { text: 'Got it' }, { quoted: msg })
-
-// Mention someone
-await sock.sendMessage(jid, {
-    text: '@254700000000 hey!',
-    mentions: ['254700000000@s.whatsapp.net']
+```javascript
+const sock = makeWASocket({
+    auth: state,
+    printQRInTerminal: false
 })
 
-// Image
-await sock.sendMessage(jid, {
-    image: { url: './image.jpg' },
-    caption: 'Check this out'
-})
-
-// Video
-await sock.sendMessage(jid, {
-    video: { url: './video.mp4' },
-    caption: 'Watch this'
-})
-
-// Audio
-await sock.sendMessage(jid, {
-    audio: { url: './audio.mp3' },
-    mimetype: 'audio/mp4'
-})
-
-// React to a message
-await sock.sendMessage(jid, {
-    react: { text: '🔥', key: msg.key }
-})
-
-// Delete for everyone
-await sock.sendMessage(jid, {
-    delete: msg.key
-})
-```
-
----
-
-## WhatsApp JID Format
-
-| Type | Format |
-|------|--------|
-| Personal chat | `254700000000@s.whatsapp.net` |
-| Group | `123456789-123456@g.us` |
-| Broadcast | `status@broadcast` |
-
----
-
-## Groups
-
-```js
-// Create
-const group = await sock.groupCreate('My Group', ['254700000000@s.whatsapp.net'])
-
-// Add / remove participants
-await sock.groupParticipantsUpdate(jid, ['254700000000@s.whatsapp.net'], 'add')    // or 'remove'
-
-// Promote / demote
-await sock.groupParticipantsUpdate(jid, ['254700000000@s.whatsapp.net'], 'promote') // or 'demote'
-
-// Get invite link
-const code = await sock.groupInviteCode(jid)
-
-// Join by invite code
-await sock.groupAcceptInvite('abc123')
-
-// Group info
-const meta = await sock.groupMetadata(jid)
-
-// Leave
-await sock.groupLeave(jid)
-```
-
----
-
-## Privacy & Profile
-
-```js
-// Block / unblock
-await sock.updateBlockStatus(jid, 'block')   // or 'unblock'
-
-// Change display name
-await sock.updateProfileName('My Name')
-
-// Change status
-await sock.updateProfileStatus('Available')
-
-// Update profile picture
-await sock.updateProfilePicture(jid, { url: './photo.jpg' })
-
-// Fetch someone's profile picture
-const url = await sock.profilePictureUrl(jid, 'image')
-```
-
----
-
-## Reading Messages & Presence
-
-```js
-// Mark messages as read
-await sock.readMessages([msg.key])
-
-// Update presence (in a chat)
-await sock.sendPresenceUpdate('composing', jid)  // typing
-await sock.sendPresenceUpdate('paused', jid)     // stopped typing
-```
-
----
-
-## Downloading Media
-
-```js
-import { downloadMediaMessage } from 'davexbaileys'
-
-sock.ev.on('messages.upsert', async ({ messages }) => {
-    for (const msg of messages) {
-        if (msg.message?.imageMessage) {
-            const buffer = await downloadMediaMessage(msg, 'buffer', {})
-            // save or process buffer
-        }
+sock.ev.on('connection.update', async ({ connection }) => {
+    if (connection === 'connecting') {
+        const phoneNumber = '254700000000' // your number without +
+        const code = await sock.requestPairingCode(phoneNumber)
+        console.log('Pairing code:', code)
     }
 })
 ```
 
 ---
 
-## Caching Group Metadata (Recommended for group bots)
+## Sending Messages
 
-```js
-import { NodeCache } from '@cacheable/node-cache'
+### Text
 
-const groupCache = new NodeCache({ stdTTL: 300 })
+```javascript
+await sock.sendMessage(jid, { text: 'Hello!' })
 
-const sock = makeWASocket({
-    auth: state,
-    cachedGroupMetadata: async (jid) => groupCache.get(jid)
+// With mention
+await sock.sendMessage(jid, {
+    text: '@user Hello!',
+    mentions: ['254700000000@s.whatsapp.net']
 })
 
-sock.ev.on('groups.update', async ([event]) => {
-    groupCache.set(event.id, await sock.groupMetadata(event.id))
+// Reply to a message
+await sock.sendMessage(jid, { text: 'Reply' }, { quoted: originalMsg })
+```
+
+### Images & Videos
+
+```javascript
+// From file
+await sock.sendMessage(jid, {
+    image: { url: './photo.jpg' },
+    caption: 'Check this out'
+})
+
+// From URL
+await sock.sendMessage(jid, {
+    video: { url: 'https://example.com/video.mp4' },
+    caption: 'Watch this',
+    gifPlayback: false
+})
+```
+
+### Audio & Voice Notes
+
+```javascript
+// Audio file
+await sock.sendMessage(jid, { audio: { url: './audio.mp3' } })
+
+// Voice note (PTT)
+await sock.sendMessage(jid, {
+    audio: { url: './voice.ogg' },
+    mimetype: 'audio/ogg; codecs=opus',
+    ptt: true
+})
+```
+
+### Documents
+
+```javascript
+await sock.sendMessage(jid, {
+    document: { url: './file.pdf' },
+    mimetype: 'application/pdf',
+    fileName: 'document.pdf'
+})
+```
+
+### Stickers
+
+```javascript
+await sock.sendMessage(jid, { sticker: { url: './sticker.webp' } })
+```
+
+### Location
+
+```javascript
+await sock.sendMessage(jid, {
+    location: { degreesLatitude: -1.286389, degreesLongitude: 36.817223 }
+})
+```
+
+### Buttons & Polls
+
+```javascript
+// Poll
+await sock.sendMessage(jid, {
+    poll: {
+        name: 'Choose one',
+        values: ['Option A', 'Option B', 'Option C'],
+        selectableCount: 1
+    }
+})
+```
+
+### Forward a Message
+
+```javascript
+await sock.reshare(jid, originalMsg)
+```
+
+### Send to Status (Story)
+
+```javascript
+await sock.sendToStatus(
+    { text: 'My status update ✨' },
+    { statusJidList: ['254700000000@s.whatsapp.net'] }
+)
+```
+
+### Edit a Sent Message
+
+```javascript
+await sock.editMessage(jid, originalMsgId, 'Updated text here')
+```
+
+### Delete a Message
+
+```javascript
+await sock.sendMessage(jid, { delete: messageKey })
+```
+
+### React to a Message
+
+```javascript
+await sock.sendMessage(jid, {
+    react: { text: '🔥', key: messageKey }
+})
+```
+
+---
+
+## Receiving Messages — Events
+
+```javascript
+// New message
+sock.ev.on('messages.upsert', ({ messages, type }) => { ... })
+
+// Message status update (delivered, read, etc.)
+sock.ev.on('messages.update', updates => { ... })
+
+// Receipts (group delivery/read per user)
+sock.ev.on('message-receipt.update', updates => { ... })
+
+// Connection state
+sock.ev.on('connection.update', update => { ... })
+
+// Group updates (join, leave, promote, etc.)
+sock.ev.on('groups.update', updates => { ... })
+
+// Group participant changes
+sock.ev.on('group-participants.update', ({ id, participants, action }) => { ... })
+
+// Contacts update
+sock.ev.on('contacts.update', updates => { ... })
+
+// Presence (typing, online)
+sock.ev.on('presence.update', ({ id, presences }) => { ... })
+
+// Incoming calls
+sock.ev.on('call', calls => { ... })
+```
+
+---
+
+## Group Management
+
+```javascript
+// Get group info
+const metadata = await sock.groupMetadata(groupJid)
+
+// Create a group
+const group = await sock.groupCreate('Group Name', ['254700000000@s.whatsapp.net'])
+
+// Add / remove / promote / demote participants
+await sock.groupParticipantsUpdate(groupJid, [jid], 'add')     // 'add' | 'remove' | 'promote' | 'demote'
+
+// Update group subject (name)
+await sock.groupUpdateSubject(groupJid, 'New Name')
+
+// Update group description
+await sock.groupUpdateDescription(groupJid, 'New description')
+
+// Toggle group settings
+await sock.groupSettingUpdate(groupJid, 'announcement')   // 'announcement' | 'not_announcement' | 'locked' | 'unlocked'
+
+// Invite link
+const link = await sock.groupInviteCode(groupJid)
+const fullLink = 'https://chat.whatsapp.com/' + link
+
+// Join via link
+await sock.groupAcceptInvite('INVITE_CODE')
+
+// Leave group
+await sock.groupLeave(groupJid)
+```
+
+---
+
+## Chat Utilities
+
+```javascript
+// Archive / unarchive
+await sock.chatModify({ archive: true, lastMessages: [msg] }, jid)
+
+// Pin / unpin
+await sock.pinChat(jid, true)
+
+// Mark as read
+await sock.readMessages([messageKey])
+
+// Delete chat
+await sock.chatModify({ delete: true, lastMessages: [msg] }, jid)
+
+// Mute for 8 hours
+await sock.chatModify({ mute: 8 * 60 * 60 * 1000 }, jid)
+
+// Disappearing messages (7 days = 604800)
+await sock.sendMessage(jid, {
+    disappearingMessagesInChat: 604800
+})
+```
+
+---
+
+## Profile & Privacy
+
+```javascript
+// Update display name
+await sock.updateProfileName('My Name')
+
+// Update bio
+await sock.updateProfileStatus('My status text')
+
+// Update profile picture
+await sock.updateProfilePicture(jid, { url: './photo.jpg' })
+
+// Remove profile picture
+await sock.removeProfilePicture(jid)
+
+// Fetch profile picture URL
+const url = await sock.profilePictureUrl(jid, 'image')
+
+// Privacy settings — each has its own function
+await sock.updateReadReceiptsPrivacy('all')          // 'all' | 'none'
+await sock.updateProfilePicturePrivacy('contacts')   // 'all' | 'contacts' | 'contact_blacklist' | 'none'
+await sock.updateStatusPrivacy('contacts')
+await sock.updateOnlinePrivacy('all')                // 'all' | 'match_last_seen'
+await sock.updateLastSeenPrivacy('contacts')
+await sock.updateGroupsAddPrivacy('contacts')
+
+// Fetch current privacy settings
+const privacy = await sock.fetchPrivacySettings(true)
+
+// Update presence (available / unavailable)
+await sock.sendPresenceUpdate('available')    // 'available' | 'unavailable'
+
+// Typing indicator in a chat
+await sock.sendPresenceUpdate('composing', jid)
+await sock.sendPresenceUpdate('paused', jid)
+```
+
+---
+
+## Newsletters (Channels)
+
+```javascript
+// Get channel metadata
+const meta = await sock.newsletterMetadata('invite', 'INVITE_CODE')
+const meta = await sock.newsletterMetadata('jid', channelJid)
+
+// Follow / unfollow
+await sock.newsletterFollow(channelJid)
+await sock.newsletterUnfollow(channelJid)
+
+// Mute / unmute
+await sock.newsletterMute(channelJid)
+await sock.newsletterUnmute(channelJid)
+
+// Create a channel
+const channel = await sock.newsletterCreate('Channel Name', { description: 'About this channel' })
+
+// Update channel name / description
+await sock.newsletterUpdate(channelJid, { name: 'New Name', description: 'New description' })
+
+// Delete a channel (you must be admin)
+await sock.newsletterDelete(channelJid)
+```
+
+---
+
+## Anti-Utilities (Built-in Bot Helpers)
+
+All checkers live on `sock.antiUtils` and correctly unwrap view-once, ephemeral, and documentWithCaption messages automatically.
+
+```javascript
+const { antiUtils } = sock
+
+// Message type detection
+antiUtils.getType(msg)          // 'text' | 'image' | 'video' | 'audio' | 'sticker' | 'document' | 'gif' | 'contact' | 'location' | 'reaction' | 'poll' | 'unknown'
+antiUtils.getText(msg)          // extracts plain text from any message type
+
+// Individual checkers
+antiUtils.isSticker(msg)        // antisticker
+antiUtils.isImage(msg)          // antiimage
+antiUtils.isAudio(msg)          // antiaudio
+antiUtils.isVideo(msg)          // antivideo
+antiUtils.isDocument(msg)       // antidocument / antifiles
+antiUtils.isGif(msg)            // gif loop detection
+antiUtils.isViewOnce(msg)       // antiviewonce
+antiUtils.isForwarded(msg)      // antiforward
+antiUtils.isContact(msg)        // contact card detection
+antiUtils.isLocation(msg)       // location detection
+antiUtils.isStatus(msg)         // status/story broadcast
+antiUtils.isFromBot(msg)        // antibot — sender is a WA bot account
+antiUtils.hasLink(msg)          // antilink — catches http, https, wa.me, t.me, bit.ly, etc.
+antiUtils.hasMention(msg)       // antitag / antimention — @-mentions of users
+antiUtils.hasGroupMention(msg)  // @g.us group/community mentions
+antiUtils.isBugMessage(msg)     // antibug — null bytes, RTL overrides, crash chars
+antiUtils.isVirtex(msg)         // antivirtex — Virtex crash exploit patterns
+```
+
+Example — antilink in a group:
+
+```javascript
+sock.ev.on('messages.upsert', async ({ messages, type }) => {
+    if (type !== 'notify') return
+    const msg = messages[0]
+    if (!msg.message || msg.key.fromMe) return
+    if (!msg.key.remoteJid.endsWith('@g.us')) return  // groups only
+
+    if (sock.antiUtils.hasLink(msg)) {
+        await sock.sendMessage(msg.key.remoteJid, { delete: msg.key })
+        await sock.sendMessage(msg.key.remoteJid, { text: '🚫 Links not allowed here.' })
+    }
+})
+```
+
+---
+
+## Download Media
+
+```javascript
+const { downloadMediaMessage } = require('davebaileys')
+
+const buffer = await downloadMediaMessage(msg, 'buffer', {})
+// buffer is a Buffer you can save to disk or process
+```
+
+---
+
+## Business Profile
+
+```javascript
+// Update business profile
+await sock.updateBussinesProfile({
+    description: 'We sell everything',
+    email: 'contact@mybusiness.com',
+    website: ['https://mybusiness.com'],
+    category: 'Shopping & Retail'
+})
+```
+
+---
+
+## Configuration Options
+
+```javascript
+const sock = makeWASocket({
+    auth: state,
+    browser: Browsers.ubuntu('MyBot'),  // or Browsers.macOS('Desktop') / Browsers.windows('MyBot')
+    printQRInTerminal: true,
+    logger: pino({ level: 'silent' }),  // suppress logs: require('pino')
+    connectTimeoutMs: 60000,
+    keepAliveIntervalMs: 10000,
+    retryRequestDelayMs: 250,
+    maxMsgRetryCount: 5,
+    fireInitQueries: true,
+    generateHighQualityLinkPreview: false,
+    shouldIgnoreJid: jid => isJidBroadcast(jid),  // optional filter
+    getMessage: async key => undefined  // optional message store
 })
 ```
 
@@ -244,11 +466,12 @@ sock.ev.on('groups.update', async ([event]) => {
 
 ## Links
 
-- **npm:** https://www.npmjs.com/package/davexbaileys
+- **npm:** https://www.npmjs.com/package/davebaileys
 - **GitHub:** https://github.com/Davex-254/davebaileys
+- **Issues:** https://github.com/Davex-254/davebaileys/issues
 
 ---
 
 ## License
 
-MIT — © Davex-254
+MIT © [Davex-254](https://github.com/Davex-254)
