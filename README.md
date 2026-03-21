@@ -1,254 +1,122 @@
-<div align="center">
-
 # davexbaileys
 
-**A fast, lightweight WhatsApp Web API library for Node.js**
+  [![npm version](https://img.shields.io/npm/v/davexbaileys.svg)](https://www.npmjs.com/package/davexbaileys)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+  A lightweight, full-featured WhatsApp Web API library for Node.js — maintained by **Dave Tech**.
+
+  > Built on top of the Baileys protocol layer with extended features for bots, channels, groups, and business.
+
+  ## Installation
+
+  ```bash
+  npm install davexbaileys
+  ```
+
+  ## Usage
+
+  ```js
+  const { makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion } = require('davexbaileys');
+
+  const { version } = await fetchLatestBaileysVersion(); // fetches live from WhatsApp
+  const { state, saveCreds } = await useMultiFileAuthState('auth_info');
+
+  const sock = makeWASocket({ version, auth: state });
+  sock.ev.on('creds.update', saveCreds);
+  ```
+
+  ## Features
+
+  ### Connection
+  - `fetchLatestBaileysVersion()` — fetches live WA version from WhatsApp web (no stale versions)
+  - `fetchLatestWaWebVersion()` — alternative live version fetch
+  - Multi-device (MD) support with pairing code & QR
+  - Automatic reconnection with smart keepalive
+
+  ### Messaging
+  - Send text, images, videos, audio, documents, stickers, reactions, polls
+  - Edit and delete messages
+  - Quote / reply, forward, mention contacts
+
+  ### Groups
+  - Create, update, leave, join (invite link or code)
+  - Manage participants (add, remove, promote, demote)
+  - Update group settings (subject, description, icon, restrictions)
+  - `isAntiGroupMention(message, participants, threshold?)` — detect mass @everyone mentions
+
+  ```js
+  // Anti group mention detection
+  sock.ev.on('messages.upsert', async ({ messages }) => {
+      const msg = messages[0];
+      if (!msg.key.fromMe && msg.key.remoteJid.endsWith('@g.us')) {
+          const meta = await sock.groupMetadata(msg.key.remoteJid);
+          if (sock.isAntiGroupMention(msg, meta.participants.map(p => p.id))) {
+              // Someone mentioned everyone — take action
+              await sock.sendMessage(msg.key.remoteJid, { text: '⚠️ Mass mentions are not allowed!' });
+          }
+      }
+  });
+  ```
+
+  ### Private Chat Commands
+  - `sock.pinChat(jid, true|false)` — pin or unpin a chat
+  - `sock.archiveChat(jid, lastMessages)` — archive a chat
+  - `sock.unarchiveChat(jid, lastMessages)` — unarchive a chat
+  - `sock.markChatRead(jid, lastMessages)` — mark chat as read
+  - `sock.markChatUnread(jid, lastMessages)` — mark chat as unread
+  - `sock.chatModify(mod, jid)` — raw chat modification
+  - `sock.star(jid, messages, star)` — star/unstar messages
+
+  ### Newsletter (Channel) Commands
+  - `sock.newsletterCreate(name, description)` — create a new channel
+  - `sock.newsletterFollow(jid)` — follow a channel
+  - `sock.newsletterUnfollow(jid)` — unfollow a channel
+  - `sock.newsletterMute(jid)` / `sock.newsletterUnmute(jid)` — mute/unmute
+  - `sock.newsletterMetadata(type, key)` — get channel metadata
+  - `sock.newsletterSubscribers(jid)` — get subscriber list
+  - `sock.newsletterReactMessage(jid, serverId, emoji)` — react to a channel post
+  - `sock.newsletterFetchMessages(jid, count, since, after)` — fetch channel messages
+  - `sock.newsletterUpdateName(jid, name)` — update channel name
+  - `sock.newsletterUpdateDescription(jid, description)` — update channel description
+  - `sock.newsletterUpdatePicture(jid, buffer)` — update channel picture
+  - `sock.newsletterRemovePicture(jid)` — remove channel picture
+  - `sock.newsletterDelete(jid)` — delete channel
+  - `sock.newsletterChangeOwner(jid, newOwnerJid)` — transfer ownership
+  - `sock.subscribeNewsletterUpdates(jid)` — subscribe to live updates
+
+  > **Auto-react:** davexbaileys automatically reacts 👍 to new posts from the Dave Tech official channel.
+
+  ### WhatsApp Business Commands
+  - `sock.getCatalog({ jid, limit, cursor })` — fetch business product catalog
+  - `sock.getCollections(jid, limit)` — fetch product collections
+  - `sock.getOrderDetails(orderId, tokenBase64)` — get order details
+  - `sock.getBusinessProfile(jid)` — get business profile
+
+  ### Privacy & Settings
+  - `sock.updateLastSeenPrivacy(value)`
+  - `sock.updateOnlinePrivacy(value)`
+  - `sock.updateProfilePicturePrivacy(value)`
+  - `sock.updateStatusPrivacy(value)`
+  - `sock.updateReadReceiptsPrivacy(value)`
+  - `sock.updateGroupsAddPrivacy(value)`
+  - `sock.updateDefaultDisappearingMode(duration)`
+  - `sock.updateBlockStatus(jid, action)`
 
-[![npm](https://img.shields.io/npm/v/davexbaileys?color=crimson)](https://www.npmjs.com/package/davexbaileys)
-[![npm downloads](https://img.shields.io/npm/dm/davexbaileys)](https://www.npmjs.com/package/davexbaileys)
-[![license](https://img.shields.io/npm/l/davexbaileys)](https://github.com/Davex-254/davebaileys/blob/main/LICENSE)
+  ### Newsletter Events
+  ```js
+  sock.ev.on('newsletter.reaction', update => { /* { id, server_id, reaction } */ });
+  sock.ev.on('newsletter.view', update => { /* { id, server_id, count } */ });
+  sock.ev.on('newsletter-participants.update', update => { /* participant changes */ });
+  sock.ev.on('newsletter-settings.update', update => { /* settings changes */ });
+  ```
 
-</div>
+  ## Author
 
----
+  **Dave Tech**  
+  GitHub: [Davex-254](https://github.com/Davex-254)  
+  Channel: [Dave Tech on WhatsApp](https://whatsapp.com/channel/0029Vb6wIVU9Bb5w69FQvt0W)
 
-> **Disclaimer:** This project is not affiliated with or endorsed by WhatsApp. Use responsibly. Do not use for spam, bulk messaging, or stalkerware.
+  ## License
 
----
-
-## Why davexbaileys?
-
-- No browser, no Selenium — connects directly via **WebSocket**
-- Based on the latest official WhatsApp multi-device protocol
-- Built-in fix for the **428 reconnection loop** that kills deployed bots
-- Pure ESM — works cleanly with modern Node.js (v20+)
-
----
-
-## Installation
-
-```bash
-npm install davexbaileys
-```
-
----
-
-## Requirements
-
-- **Node.js v20 or higher**
-- This package is **ESM only** — use `import`, not `require`
-
----
-
-## Getting Started
-
-### Save & Restore Session
-
-```js
-import makeWASocket, { useMultiFileAuthState, DisconnectReason } from 'davexbaileys'
-import { Boom } from '@hapi/boom'
-
-async function start() {
-    const { state, saveCreds } = await useMultiFileAuthState('session')
-
-    const sock = makeWASocket({ auth: state })
-
-    sock.ev.on('creds.update', saveCreds)
-
-    sock.ev.on('connection.update', ({ connection, lastDisconnect, qr }) => {
-        if (qr) console.log('QR code:', qr)
-
-        if (connection === 'close') {
-            const code = lastDisconnect?.error?.output?.statusCode
-            if (code !== DisconnectReason.loggedOut) start()
-        } else if (connection === 'open') {
-            console.log('Connected!')
-        }
-    })
-
-    sock.ev.on('messages.upsert', async ({ messages }) => {
-        for (const msg of messages) {
-            console.log(msg)
-        }
-    })
-}
-
-start()
-```
-
-### Connect with Pairing Code (no QR)
-
-```js
-const sock = makeWASocket({ auth: state })
-
-if (!sock.authState.creds.registered) {
-    const code = await sock.requestPairingCode('2547XXXXXXXX') // full number, no +
-    console.log('Pairing code:', code)
-}
-```
-
----
-
-## Sending Messages
-
-```js
-// Text
-await sock.sendMessage(jid, { text: 'Hello!' })
-
-// Reply / quote
-await sock.sendMessage(jid, { text: 'Got it' }, { quoted: msg })
-
-// Mention someone
-await sock.sendMessage(jid, {
-    text: '@254700000000 hey!',
-    mentions: ['254700000000@s.whatsapp.net']
-})
-
-// Image
-await sock.sendMessage(jid, {
-    image: { url: './image.jpg' },
-    caption: 'Check this out'
-})
-
-// Video
-await sock.sendMessage(jid, {
-    video: { url: './video.mp4' },
-    caption: 'Watch this'
-})
-
-// Audio
-await sock.sendMessage(jid, {
-    audio: { url: './audio.mp3' },
-    mimetype: 'audio/mp4'
-})
-
-// React to a message
-await sock.sendMessage(jid, {
-    react: { text: '🔥', key: msg.key }
-})
-
-// Delete for everyone
-await sock.sendMessage(jid, {
-    delete: msg.key
-})
-```
-
----
-
-## WhatsApp JID Format
-
-| Type | Format |
-|------|--------|
-| Personal chat | `254700000000@s.whatsapp.net` |
-| Group | `123456789-123456@g.us` |
-| Broadcast | `status@broadcast` |
-
----
-
-## Groups
-
-```js
-// Create
-const group = await sock.groupCreate('My Group', ['254700000000@s.whatsapp.net'])
-
-// Add / remove participants
-await sock.groupParticipantsUpdate(jid, ['254700000000@s.whatsapp.net'], 'add')    // or 'remove'
-
-// Promote / demote
-await sock.groupParticipantsUpdate(jid, ['254700000000@s.whatsapp.net'], 'promote') // or 'demote'
-
-// Get invite link
-const code = await sock.groupInviteCode(jid)
-
-// Join by invite code
-await sock.groupAcceptInvite('abc123')
-
-// Group info
-const meta = await sock.groupMetadata(jid)
-
-// Leave
-await sock.groupLeave(jid)
-```
-
----
-
-## Privacy & Profile
-
-```js
-// Block / unblock
-await sock.updateBlockStatus(jid, 'block')   // or 'unblock'
-
-// Change display name
-await sock.updateProfileName('My Name')
-
-// Change status
-await sock.updateProfileStatus('Available')
-
-// Update profile picture
-await sock.updateProfilePicture(jid, { url: './photo.jpg' })
-
-// Fetch someone's profile picture
-const url = await sock.profilePictureUrl(jid, 'image')
-```
-
----
-
-## Reading Messages & Presence
-
-```js
-// Mark messages as read
-await sock.readMessages([msg.key])
-
-// Update presence (in a chat)
-await sock.sendPresenceUpdate('composing', jid)  // typing
-await sock.sendPresenceUpdate('paused', jid)     // stopped typing
-```
-
----
-
-## Downloading Media
-
-```js
-import { downloadMediaMessage } from 'davexbaileys'
-
-sock.ev.on('messages.upsert', async ({ messages }) => {
-    for (const msg of messages) {
-        if (msg.message?.imageMessage) {
-            const buffer = await downloadMediaMessage(msg, 'buffer', {})
-            // save or process buffer
-        }
-    }
-})
-```
-
----
-
-## Caching Group Metadata (Recommended for group bots)
-
-```js
-import { NodeCache } from '@cacheable/node-cache'
-
-const groupCache = new NodeCache({ stdTTL: 300 })
-
-const sock = makeWASocket({
-    auth: state,
-    cachedGroupMetadata: async (jid) => groupCache.get(jid)
-})
-
-sock.ev.on('groups.update', async ([event]) => {
-    groupCache.set(event.id, await sock.groupMetadata(event.id))
-})
-```
-
----
-
-## Links
-
-- **npm:** https://www.npmjs.com/package/davexbaileys
-- **GitHub:** https://github.com/Davex-254/davebaileys
-
----
-
-## License
-
-MIT — © Davex-254
+  MIT
+  
