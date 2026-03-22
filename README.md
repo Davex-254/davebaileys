@@ -4,7 +4,7 @@
   [![npm downloads](https://img.shields.io/npm/dm/davexbaileys?style=flat-square&color=green)](https://www.npmjs.com/package/davexbaileys)
   [![npm total](https://img.shields.io/npm/dt/davexbaileys?style=flat-square&color=orange&label=total+downloads)](https://www.npmjs.com/package/davexbaileys)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-  [![Node.js](https://img.shields.io/node/v/davexbaileys?style=flat-square)](https://nodejs.org)
+  [![Node.js >=20](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen?style=flat-square)](https://nodejs.org)
 
   > A lightweight, full-featured WhatsApp Web API library for Node.js — maintained by **Dave Tech**.
 
@@ -13,6 +13,10 @@
   ```bash
   npm install davexbaileys
   ```
+
+  ## Requirements
+
+  - **Node.js** `>=20.0.0` (same as official [@whiskeysockets/baileys](https://github.com/WhiskeySockets/Baileys))
 
   ## Quick Start
 

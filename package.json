@@ -1,6 +1,6 @@
 {
     "name": "davexbaileys",
-    "version": "2.5.21",
+    "version": "2.5.22",
     "description": "A lightweight, full-featured WhatsApp Web API library for Node.js — maintained by Dave Tech",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
@@ -34,5 +34,8 @@
         "pino": "^9.6",
         "protobufjs": "^7.2.4",
         "ws": "^8.13.0"
+    },
+    "engines": {
+        "node": ">=20.0.0"
     }
 }
